@@ -24,14 +24,20 @@ end
 
 config.color_scheme = scheme_for_appearance(get_appearance())
 
-config.window_decorations = "RESIZE|INTEGRATED_BUTTONS"
+local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
 
+config.window_decorations = "RESIZE|INTEGRATED_BUTTONS"
+config.enable_scroll_bar = true
+
+config.freetype_load_flags = 'DEFAULT'
+config.freetype_load_target = "Light"
+config.freetype_render_target = "HorizontalLcd"
 
 config.window_frame = {
   font = wezterm.font("SF Pro", { weight='Bold' }),
   font_size = 14.0, 
-  active_titlebar_bg = wezterm.color.get_builtin_schemes()[config.color_scheme].selection_bg,
-  inactive_titlebar_bg = wezterm.color.get_builtin_schemes()[config.color_scheme].background,
+  active_titlebar_bg = color_scheme.selection_bg,
+  inactive_titlebar_bg = color_scheme.selection_bg,
 }
 
 config.inactive_pane_hsb = {
@@ -40,30 +46,31 @@ config.inactive_pane_hsb = {
 
 config.colors = {
   tab_bar = {
+    inactive_tab_edge = color_scheme.selection_bg,
     active_tab = {
-      bg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].background,
-      fg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].foreground,
+      bg_color = color_scheme.background,
+      fg_color = color_scheme.foreground,
     },
     inactive_tab = {
-      fg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].selection_fg,
-      bg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].selection_bg,
+      bg_color = color_scheme.selection_bg,
+      fg_color = color_scheme.selection_fg,
     },
     inactive_tab_hover = {
-      fg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].cursor_fg,
-      bg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].cursor_bg,
+      bg_color = color_scheme.cursor_bg,
+      fg_color = color_scheme.cursor_fg,
     },
     new_tab = {
-      bg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].selection_bg,
-      fg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].selection_fg,
+      bg_color = color_scheme.selection_bg,
+      fg_color = color_scheme.selection_fg,
     },
     new_tab_hover = {
-      fg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].cursor_fg,
-      bg_color = wezterm.color.get_builtin_schemes()[config.color_scheme].cursor_bg,
+      bg_color = color_scheme.cursor_bg,
+      fg_color = color_scheme.cursor_fg,
     },
   },
 }
 
-config.font = wezterm.font("SF Mono")
+config.font = wezterm.font("SF Mono", { weight = 'Bold' })
 config.font_size = 14.0
 
 config.keys = {
@@ -129,13 +136,25 @@ config.keys = {
   },
   {
     key = 'w',
-    mods = 'CMD',
+    mods = 'SUPER',
     action = wezterm.action.CloseCurrentPane { confirm = true },
   },
   {
     key = 'k',
-    mods = 'CMD',
+    mods = 'SUPER',
     action = wezterm.action.ClearScrollback 'ScrollbackAndViewport',
+  },
+  {
+    key = ',',
+    mods = 'SUPER',
+    action = wezterm.action.SpawnCommandInNewTab {
+      cwd = wezterm.home_dir,
+      args = {
+        os.getenv 'SHELL',
+        '-c',
+        'nvim ' .. wezterm.shell_quote_arg(wezterm.config_file),
+      },
+    },
   },
 }
 
